@@ -4,7 +4,7 @@ const PORT = 8080; // used as default
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK" : "http://www.google.com"
+  "9sm5xK": "http://www.google.com"
 };
 // this is how you make the server see "/" (root), "/urls.json" //page on root
 app.get("/", (req, res) => {
