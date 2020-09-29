@@ -22,6 +22,7 @@ const urlDatabase = {
   "dddds": "http://www.rangewellness.com",
 };
 // this is how you make the server see "/" (root), "/urls.json" //page on root
+
 app.get("/", (req, res) => {
   res.send("Hello");
 });
@@ -59,17 +60,16 @@ app.post("/urls", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL; 
   const longURL = urlDatabase[shortURL]
-if (longURL) {
-  res.redirect(longURL)
-} else {
-  res.send("long URL is not in the DATABASE")
-};
+    if (longURL) {
+      res.redirect(longURL)
+    } else {
+      return res.send("long URL is not in the DATABASE")
 
-
-
-
+    };
 });
-
+app.get('*', (req, res) => {
+  res.status(404).send('page not found')
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on ${PORT}!`);
