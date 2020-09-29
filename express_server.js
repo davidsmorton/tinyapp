@@ -1,4 +1,4 @@
-const { randomString } = require("./randomString")
+const { randomString } = require("./Helpers")
 const express = require("express");
 const app = express();
 const PORT = 8080; // used as default
@@ -6,7 +6,7 @@ const PORT = 8080; // used as default
 
 
 function generateRandomString() {
-return randomString(6)
+return randomString(6);
 }
 
 //console.log(generateRandomString());
@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
-  "dddds": "http://www.rangewellness.com"
+  "dddds": "http://www.rangewellness.com",
 };
 // this is how you make the server see "/" (root), "/urls.json" //page on root
 app.get("/", (req, res) => {
@@ -51,8 +51,25 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-  res.send(generateRandomString());         // Respond with 'Ok' (we will replace this)
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body["longURL"];
+  res.redirect(`/urls/${shortURL}`)
 });
+
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL; 
+  const longURL = urlDatabase[shortURL]
+if (longURL) {
+  res.redirect(longURL)
+} else {
+  res.send("long URL is not in the DATABASE")
+};
+
+
+
+
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on ${PORT}!`);
