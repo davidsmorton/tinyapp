@@ -23,6 +23,8 @@ const urlDatabase = {
 };
 // this is how you make the server see "/" (root), "/urls.json" //page on root
 
+// GET REQUESTS
+
 app.get("/", (req, res) => {
   res.send("Hello");
 });
@@ -50,6 +52,20 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL; 
+  const longURL = urlDatabase[shortURL]
+  if (longURL) {
+    res.redirect(longURL)
+  } else {
+    return res.send("long URL is not in the DATABASE")
+    
+  };
+  
+});
+
+// POST REQUESTS
+
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString();
@@ -57,16 +73,22 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`)
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL; 
-  const longURL = urlDatabase[shortURL]
-    if (longURL) {
-      res.redirect(longURL)
-    } else {
-      return res.send("long URL is not in the DATABASE")
-
-    };
+app.post('/urls/:shortURL/delete', (req, res) => { 
+  const shortURL = req.params.shortURL; // tried setting :shortURL as a variable that user enters nope
+  // do we hard code this ?
+  delete urlDatabase[shortURL]; //should work because we're deleting the key
+  res.redirect('/urls');
 });
+
+
+
+
+
+
+
+
+
+// CATCH ALL
 app.get('*', (req, res) => {
   res.status(404).send('page not found')
 })
