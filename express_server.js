@@ -50,6 +50,9 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  if (urlDatabase[req.params.shortURL] === undefined) {
+    return res.send("Not a valid short URL")
+  }
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
@@ -67,6 +70,15 @@ app.get("/u/:shortURL", (req, res) => {
     return res.send("long URL is not in the DATABASE");
   }
 });
+
+app.get("/register", (req, res) => {
+  
+  return res.send("registration");
+});
+
+
+
+
 
 
 
