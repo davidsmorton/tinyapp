@@ -33,10 +33,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 //grabing data base from above?
 app.get("/urls", (req, res) => {
   const templateVars = {
@@ -71,6 +67,11 @@ app.get("/u/:shortURL", (req, res) => {
     return res.send("long URL is not in the DATABASE");
   }
 });
+
+
+
+
+
 
 // POST REQUESTS
 
