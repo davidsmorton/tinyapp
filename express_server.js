@@ -98,7 +98,13 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies["id"]], 
   };
+ if (templateVars.user) {
+  // using cookies to check if logged in ask?
   res.render("urls_new", templateVars);
+ } else {
+    // redirecting to login page if no tracked cookeies? check logic with Mentor
+    res.redirect("/login")
+ }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -173,6 +179,7 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
+
  // console.log(req.body); // Log the POST request body to the console
   
   //Get the email and password from the User entering on the Form
@@ -199,6 +206,7 @@ app.post("/login", (req, res) => {
    
   }  
 });
+
 app.post("/urls", (req, res) => {
   //console.log(req.body); // Log the POST request body to the console
   const shortURL = generateRandomString();
@@ -207,8 +215,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL; // tried setting :shortURL as a variable that user enters nope
-  // do we hard code this ?
+  const shortURL = req.params.shortURL; 
   delete urlDatabase[shortURL]; //should work because we're deleting the key
   res.redirect("/urls");
 });
