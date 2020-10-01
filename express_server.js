@@ -59,7 +59,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "1234"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -69,29 +69,64 @@ const users = {
 }
 
 const urlDatabase = {
-  b2xVn2: "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  dddds: "http://www.rangewellness.com",
+  b2xVn2: { longURL: "http://www.lighthouselabs.ca", id: "userRandomID"} ,
+  "9sm5xK": { longURL: "http://www.google.com", id: "userRandomID"},
+  dddds3: { longURL: "http://www.rangewellness.com", id: "user2RandomID"},
 };
 
-// GET REQUESTS
+////FAKE DATABASES END HERE.....
+
+
+
+// GET REQUESTS HERE....
 
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.redirect("login");
 });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = { username: req.cookies["id"], user:null }
+  res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = { username: req.cookies["id"], user:null }
+ // console.log(res.cookie)
+  res.render("login", templateVars);
+});
+
 //grabing data base from above?
 app.get("/urls", (req, res) => {
+  
+//use id to match id in URLs databas = loop
+  const filteredURLByUser = {}
+
+  for (shortURL in urlDatabase) {
+    if ( req.cookies["id"] === urlDatabase[shortURL]["id"]) {
+    filteredURLByUser[shortURL] = urlDatabase[shortURL] ;
+    } 
+  };
+
   const templateVars = { 
     user: users[req.cookies["id"]], 
-    urls: urlDatabase,
+    urls: filteredURLByUser,
   };
-  //console.log(templateVars)
-  res.render("urls_index", templateVars);
+  if (templateVars.user ) {
+      //console.log(templateVars)
+      res.render("urls_index", templateVars);
+   } else {
+      // redirecting to login page if no tracked cookeies? check logic with Mentor
+      res.send("Please register or login. Go Back then press one of those buttons  (top right).")
+      //res.redirect("/login") would like an Alert here
+   }
+
+
+
+
 });
 
 app.get("/urls/new", (req, res) => {
@@ -103,7 +138,8 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
  } else {
     // redirecting to login page if no tracked cookeies? check logic with Mentor
-    res.redirect("/login")
+    ("Please register or login. Go Back then press one of those buttons  (top right).")
+    //res.redirect("/login") would like an Alert here
  }
 });
 
@@ -113,15 +149,20 @@ app.get("/urls/:shortURL", (req, res) => {
   }
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["id"] /* What goes here? */,
+    longURL: urlDatabase[req.params.shortURL]["longURL"],
+    user: users[req.cookies["id"]],
   };
+
+
+
+  //console.log(templateVars);
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL]["longURL"];
+  console.log(longURL)
   if (longURL) {
     res.redirect(longURL);
   } else {
@@ -129,21 +170,11 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
-app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["id"], user:null }
-  res.render("register", templateVars);
-});
-
-app.get("/login", (req, res) => {
-  const templateVars = { username: req.cookies["id"], user:null }
-  console.log(res.cookie)
-  res.render("login", templateVars);
-});
+//GET REQUESTS END HERE ....
 
 
 
-
-// POST REQUESTS
+// POST REQUESTS HERE ...
 
 app.post("/register", (req, res) => {
   //console.log(req.body); // Log the POST request body to the console
@@ -210,13 +241,21 @@ app.post("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   //console.log(req.body); // Log the POST request body to the console
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body["longURL"];
+  urlDatabase[shortURL] = { 
+    longURL: req.body["longURL"], 
+    id: req.cookies["id"]
+  };
+  
+  console.log(urlDatabase[shortURL])
   res.redirect(`/urls/${shortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL; 
-  delete urlDatabase[shortURL]; //should work because we're deleting the key
+  // limiting ability to delete by matched user id
+  if ( req.cookies["id"] === urlDatabase[shortURL]["id"]) {
+    delete urlDatabase[shortURL]; 
+  }
   res.redirect("/urls");
 });
 
@@ -225,7 +264,11 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL; // paramater values from URL path
   const longURL = req.body.longURL; // data (key value) submitted from form
   //console.log(shortURL, longURL);
-  urlDatabase[shortURL] = longURL;
+  
+  // limiting ability to edit by matched user id
+  if (req.cookies["id"] === urlDatabase[shortURL]["id"]) {
+    urlDatabase[shortURL] = longURL;
+  };
   res.redirect("/urls");
 });
 
@@ -247,6 +290,8 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+// POST REQUESTS END HERE ....
+
 
 
 
@@ -263,7 +308,7 @@ app.post("/logout", (req, res) => {
 app.get("*", (req, res) => {
   res.status(404).send("page not found");
 });
-
+//Look at this if you can get to it
 app.listen(PORT, () => {
   console.log(`Example app listening on ${PORT}!`);
 });
