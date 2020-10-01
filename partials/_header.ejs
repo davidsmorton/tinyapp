@@ -19,30 +19,30 @@
         <!-- <button type="submit" class="btn btn-outline-secondary">Logout</button>-->
       </div>
     </div>
-    <% if (username) { %>
-    <form method="POST" action="/logout" class="form-inline">
-      <!--Ask about this part-->
-     
-       Logged in as:&nbsp <%= username %> &nbsp&nbsp 
-     
-        
-     
-      <button type="submit" class="btn btn-outline-secondary">Logout</button>
-    </form>
-    <% } else { %>
-    <form method="POST" action="/login" class="form-inline">
-      <!--Ask about this part-->
-      <div class="form-group mx-sm-3 mb-2">
-        <label for="Username" class="sr-only">Username </label>
-        <input
-          type="username"
-          class="form-control"
-          placeholder="Username"
-          name="username"
-        />
-      </div>
-      <button type="submit" class="btn btn-outline-secondary">Login</button>
-    </form>
-    <% } %>
+    <% if (!user || !user.email) { %> 
+      <form method="POST" action="/login" class="form-inline">
+        <!--Ask about this part-->
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="Username" class="sr-only">Email </label>
+          <input
+            type="username"
+            class="form-control"
+            placeholder="Email"
+            name="email"
+          />
+        </div>
+        <button type="submit" class="btn btn-outline-secondary">Login</button>
+      </form>
+      <% } else { %>
+        <form method="POST" action="/logout" class="form-inline">
+          <!--Ask about this part-->
+         
+           Logged in as:&nbsp <%= user.email %> &nbsp&nbsp 
+         
+            
+         
+          <button type="submit" class="btn btn-outline-secondary">Logout</button>
+        </form>
+        <% } %>
   </nav>
 </header>

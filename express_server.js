@@ -8,20 +8,33 @@ function generateRandomString() {
   return randomString(6);
 }
 
-//console.log(generateRandomString());
+// Middle 
 
 app.set("view engine", "ejs");
-
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// FAKE DATABASES
+
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
   dddds: "http://www.rangewellness.com",
 };
-// this is how you make the server see "/" (root), "/urls.json" //page on root
 
 // GET REQUESTS
 
@@ -35,16 +48,17 @@ app.get("/urls.json", (req, res) => {
 
 //grabing data base from above?
 app.get("/urls", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
+  const templateVars = { 
+    user: users[req.cookies["id"]], 
     urls: urlDatabase,
   };
+  //console.log(templateVars)
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies["id"]], 
   };
   res.render("urls_new", templateVars);
 });
@@ -72,20 +86,27 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  
-  return res.send("registration");
+  const templateVars = { username: req.cookies["username"] }
+  res.render("register", templateVars);
 });
 
 
 
 
-
-
-
-
-
-
 // POST REQUESTS
+
+app.post("/register", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  const id = generateRandomString();
+users[id] = {
+  id, 
+  email: req.body.email,
+  password:req.body.password
+};
+  res.cookie("id", id)
+  //console.log(users);
+  res.redirect("/urls");
+});
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
@@ -111,15 +132,36 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+  
+  
+  //const id = users["?????"].id
+  const email = req.body.email
+  console.log(email);
+for (user in users) {
+  if (email === users[user].email) {
+    id = users[user].id
+    res.cookie("id", id); // making an object with key id and value of id variable
+  } 
+}
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("id");
   res.redirect("/urls");
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 // CATCH ALL
 app.get("*", (req, res) => {
