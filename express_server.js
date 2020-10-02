@@ -1,32 +1,33 @@
+
+// Required
+
+const express = require("express");
+const app = express();
+app.set("view engine", "ejs");
+
+const PORT = 8080; // used as default port not middle ware
+
+const bcrypt = require('bcrypt');
+
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true }));
+
 /// Helper Functions
+
 const {
 
-  checkEmailDuplicate,
   getUserByEmail,
   generateRandomString,
 
 }  = require("./Helpers.js");
 
 /// Helper Functions End here....
-
-// Middle
-
-const express = require("express");
-const app = express();
-const PORT = 8080; // used as default
-const bcrypt = require('bcrypt');
-const cookieSession = require('cookie-session');
-
-
-
-app.set("view engine", "ejs");
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieSession({
-  name: 'session',
-  keys: ['key1', 'key2']
-}));
-
 
 // FAKE DATABASES
 
@@ -50,8 +51,6 @@ const urlDatabase = {
 };
 
 ////FAKE DATABASES END HERE.....
-
-
 
 // GET REQUESTS HERE....
 
@@ -78,14 +77,12 @@ app.get("/register", (req, res) => {
 
 app.get("/login", (req, res) => {
   const templateVars = { username: req.session.id, user:null };
-  // console.log(req.session.id)
   res.render("login", templateVars);
 });
 
-//grabing data base from above?
 app.get("/urls", (req, res) => {
   
-  //use id to match id in URLs databas = loop
+  //used cookie session id to match id in URLs database to filter URLs by user
   const filteredURLByUser = {};
 
   for (let shortURL in urlDatabase) {
@@ -98,17 +95,10 @@ app.get("/urls", (req, res) => {
     urls: filteredURLByUser,
   };
   if (req.session.id) {
-    //console.log(templateVars)
     res.render("urls_index", templateVars);
   } else {
-
-    res.send("Please register or login. Go Back then press one of those buttons  (top right).");
-    
+    res.status(403).send("Please register or login. Go Back - then press one of those two buttons (top right).");
   }
-
-
-
-
 });
 
 app.get("/urls/new", (req, res) => {
@@ -116,7 +106,6 @@ app.get("/urls/new", (req, res) => {
     user: users[req.session.id],
   };
   if (templateVars.user) {
-  // using cookies to check if logged in ask?
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login");
@@ -125,11 +114,11 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   if (!req.session.id) {
-    res.send("Please Login");
+    res.status(403).send("Please Login or Register");
   } else if (urlDatabase[req.params.shortURL] === undefined) {
-    return res.send("Not a valid short URL");
+    return res.status(404).send("Not a valid short URL, Please login to create a new short URL");
   } else if (urlDatabase[req.params.shortURL].id !== req.session.id) {
-    res.send("This is not your shortURL please go and create a new one");
+    res.status(403).send("Please Login or Register");
   } else {
     const templateVars = {
       shortURL: req.params.shortURL,
@@ -155,7 +144,7 @@ app.get("/u/:shortURL", (req, res) => {
 // POST REQUESTS HERE ...
 
 app.post("/register", (req, res) => {
-  //console.log(req.body); // Log the POST request body to the console
+  
   //Generate the new random String for the UserId
   const id = generateRandomString();
   
@@ -167,14 +156,13 @@ app.post("/register", (req, res) => {
   //1. Check whether the email or password is empty
   if (email === "" || password === "") {
     res.status(400).send("Please enter an email and password");
+
   //2. Check for whether the email is duplicated or not?
-  } else if (!checkEmailDuplicate(email, users)) {
+  } else if (getUserByEmail(email, users)) {
     res.status(400).send("Email is already registered");
-  //Every check looks OK. Now create the user
+
+  //Everything checks out OK. Now create the user
   } else {
-    //everything is fine with all the checks;
- 
-    
     //Create a temp user variable with id, email and password
     let tempUser = {
       id: id,
@@ -191,8 +179,6 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-
-  // console.log(req.body); // Log the POST request body to the console
   
   //Get the email and password from the User entering on the Form
   let email = req.body.email;
@@ -201,10 +187,11 @@ app.post("/login", (req, res) => {
   //1. Check whether the email or password is empty
   if (email === "" || password === "") {
     res.status(403).send("Please enter an email and password");
+
   //2. Check for whether the email is registered or not?
-  } else if (checkEmailDuplicate(email, users))  {
+  } else if (!getUserByEmail(email, users))  {
     res.status(403).send("Email not registered");
-    //res.redirect("/register")
+    //res.redirect("/register") // Consider a redirect here
     
     //everything is fine with all the checks;
   } else {
@@ -219,19 +206,16 @@ app.post("/login", (req, res) => {
     } else {
       res.status(403).send("Wrong PASSWORD");
     }
-   
   }
 });
 
 app.post("/urls", (req, res) => {
-  //console.log(req.body); // Log the POST request body to the console
+  // generates a short URL, saves it, and associates it with the user
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: req.body["longURL"],
     id: req.session.id
   };
-  
-  console.log(urlDatabase[shortURL]);
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -241,16 +225,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (req.session.id === urlDatabase[shortURL]["id"]) {
     delete urlDatabase[shortURL];
   }
-
-  //should work because we're deleting the key
   res.redirect("/urls");
 });
 
 //Post request for editing longURL
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const shortURL = req.params.shortURL; // paramater values from URL path
-  const longURL = req.body.longURL; // data (key value) submitted from form
-  //console.log(shortURL, longURL);
+  // Form input
+  const shortURL = req.params.shortURL; 
+  const longURL = req.body.longURL; 
   
   // limiting ability to edit by matched user id
   if (req.session.id === urlDatabase[shortURL]["id"]) {
@@ -266,11 +248,12 @@ app.post("/logout", (req, res) => {
 
 // POST REQUESTS END HERE ....
 
+app.listen(PORT, () => {
+  console.log(`Example app listening on ${PORT}!`);
+});
+
 // CATCH ALL
 app.get("*", (req, res) => {
   res.status(404).send("page not found");
 });
-//Look at this if you can get to it
-app.listen(PORT, () => {
-  console.log(`Example app listening on ${PORT}!`);
-});
+

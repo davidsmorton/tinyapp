@@ -12,15 +12,6 @@ const generateRandomString = function() {
   return randomString(6);
 };
 
-// to be used with the id generated on user registration
-const checkEmailDuplicate = function(email, database) {
-  for (let user in database) {
-    if (database[user].email === email) {
-      return false;
-    }
-  }
-  return true;
-};
 
 const getUserByEmail = function(email, database) {
   for (let user in database) {
@@ -32,14 +23,15 @@ const getUserByEmail = function(email, database) {
 
 
 /////Helper functions ends here......
- 
+
+
+// resource: https://codybonney.com/generating-a-random-alphanumeric-string-with-javascript/
 
 
 
 
 module.exports = {
 
-  checkEmailDuplicate,
   getUserByEmail,
   generateRandomString,
 
