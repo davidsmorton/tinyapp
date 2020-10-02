@@ -1,13 +1,13 @@
-# TinyApp Projec 
+# TinyApp Project 
 Week 3, September 28 - October 2, 2020
 
 TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["Registration Page (/register)"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:register_page.png)
+!["Client URLs Page (/urls)"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:urls_page.png)
+!["Adding a new URL (/urls/new"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:urls:new_page.png)
 
 ## Dependencies
 
