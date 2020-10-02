@@ -1,27 +1,23 @@
-/// Helper Functions 
-const { 
+/// Helper Functions
+const {
 
   checkEmailDuplicate,
   getUserByEmail,
   generateRandomString,
 
-}  =require("./Helpers.js");
+}  = require("./Helpers.js");
 
 /// Helper Functions End here....
 
+// Middle
 
 const express = require("express");
 const app = express();
 const PORT = 8080; // used as default
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
-cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 
 
-
-
-
-// Middle
 
 app.set("view engine", "ejs");
 const bodyParser = require("body-parser");
@@ -29,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
-}))
+}));
 
 
 // FAKE DATABASES
@@ -61,9 +57,9 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   if (req.session.id) {
-  res.redirect("/urls");
+    res.redirect("/urls");
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
 });
 
@@ -123,24 +119,24 @@ app.get("/urls/new", (req, res) => {
   // using cookies to check if logged in ask?
     res.render("urls_new", templateVars);
   } else {
-    res.redirect("/login") 
+    res.redirect("/login");
   }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   if (!req.session.id) {
-    res.send("Please Login")
+    res.send("Please Login");
   } else if (urlDatabase[req.params.shortURL] === undefined) {
     return res.send("Not a valid short URL");
   } else if (urlDatabase[req.params.shortURL].id !== req.session.id) {
-    res.send("This is not your shortURL please go and create a new one")
-  } else{
+    res.send("This is not your shortURL please go and create a new one");
+  } else {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL]["longURL"],
       user: users[req.session.id],
-    }
-  res.render("urls_show", templateVars);
+    };
+    res.render("urls_show", templateVars);
   }
 });
 
@@ -191,7 +187,6 @@ app.post("/register", (req, res) => {
     console.log(users);
     res.redirect("/urls");
   }
-  
 
 });
 
@@ -213,17 +208,17 @@ app.post("/login", (req, res) => {
     
     //everything is fine with all the checks;
   } else {
-    user = getUserByEmail(email, users);
+    const user = getUserByEmail(email, users);
     console.log(user);
     // result == true
-    const hashedPassword = user.password
-    const result = bcrypt.compareSync(password, hashedPassword) 
-      if (result === true) {
-        req.session.id = user.id;
-        res.redirect("/urls");
-      } else {
-        res.status(403).send("Wrong PASSWORD");
-      }
+    const hashedPassword = user.password;
+    const result = bcrypt.compareSync(password, hashedPassword);
+    if (result === true) {
+      req.session.id = user.id;
+      res.redirect("/urls");
+    } else {
+      res.status(403).send("Wrong PASSWORD");
+    }
    
   }
 });
