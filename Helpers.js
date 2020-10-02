@@ -7,11 +7,10 @@ const randomString = function(length) {
   }
   return text;
 };
-// Need second function to pass # of desired characters
+// Need second function to pass # of desired characters for shortURL
 const generateRandomString = function() {
   return randomString(6);
 };
-
 
 const getUserByEmail = function(email, database) {
   for (let user in database) {
@@ -21,13 +20,10 @@ const getUserByEmail = function(email, database) {
   }
 };
 
-
-/////Helper functions ends here......
+/////Helper functions end here......
 
 
 // resource: https://codybonney.com/generating-a-random-alphanumeric-string-with-javascript/
-
-
 
 
 module.exports = {
