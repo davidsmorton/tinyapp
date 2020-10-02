@@ -1,34 +1,46 @@
-function randomString(length) {
+////Helper functions here .......
+const randomString = function(length) {
   let text = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < length; i++) {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
-}
-
-//console.log(randomString(6));
-
-/* reference: https://codybonney.com/generating-a-random-alphanumeric-string-with-javascript/ */
+};
+// Need second function to pass # of desired characters
+const generateRandomString = function() {
+  return randomString(6);
+};
 
 // to be used with the id generated on user registration
-const checkEmailDuplicate = function(email) {
-  for (user in users) {
-    if (users[user].email === email) {
+const checkEmailDuplicate = function(email, database) {
+  for (let user in database) {
+    if (database[user].email === email) {
       return false;
     }
   }
   return true;
 };
+
+const getUserByEmail = function(email, database) {
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user];
+    }
+  }
+};
+
+
+/////Helper functions ends here......
  
-exports.randomString = randomString();
-exports.checkEmailDuplicate = checkEmailDuplicate();
 
 
 
-// module.exports = {
 
-//   randomString,
-//   checkEmailDuplicate,
+module.exports = {
 
-// };
+  checkEmailDuplicate,
+  getUserByEmail,
+  generateRandomString,
+
+};
