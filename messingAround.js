@@ -1,11 +1,11 @@
-console.log("Scott")
+console.log("Scott");
 
 
 setTimeout(() => {
-  console.log("Hello Paige and Ed you guys are late!")
+  console.log("Hello Paige and Ed you guys are late!");
 }, 3500);
 
-console.log("Jack and Erin")
+console.log("Jack and Erin");
 
 let iterations = 0;
 const interval = setInterval(() => {
