@@ -6,13 +6,13 @@ TinyApp is a full stack web application built with Node and Express that allows 
 ## Final Product
 
 !["Registration Page (/register)"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:register_page.png)
-####Registration Page (/register)
+####Registration Page (/register)####
 
 !["Client URLs Page (/urls)"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:urls_page.png)
-####Client URLs Page (/urls)
+####Client URLs Page (/urls)####
 
 !["Adding a new URL (/urls/new"](https://github.com/davidsmorton/tinyapp/blob/master/docs/:urls:new_page.png)
-####Adding a new URL (/urls/new
+####Adding a new URL (/urls/new####
 
 ## Dependencies
 
